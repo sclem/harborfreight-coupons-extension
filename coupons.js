@@ -1,5 +1,5 @@
 function handleSingleItemPage(priceboxdiv) {
-    var itemno = findItemNo();
+    var itemno = findSingleItemNo();
 
     var saleCSS = false;
     if (priceboxdiv) {
