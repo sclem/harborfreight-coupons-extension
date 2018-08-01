@@ -20,7 +20,7 @@ function lookupCoupon(itemno, callback) {
             callback(data);
         }
     };
-    xhr.open("GET", "https://thingproxy.freeboard.io/fetch/http://hfqpdb.com/price_check/" + itemno);
+    xhr.open("GET", "https://www.hfqpdb.com/price_check/" + itemno);
     xhr.send();
 }
 

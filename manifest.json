@@ -1,7 +1,7 @@
 {
     "name": "Harbor Freight Coupons",
     "short_name": "harbor freight coupon database extension",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "manifest_version": 2,
     "description": "Automatically find and display harbor freight coupons on their website from hfqpdb.com",
     "icons": {
@@ -12,7 +12,7 @@
         "default_icon": "icons/icon32.png"
     },
     "permissions": [
-        "https://thingproxy.freeboard.io/fetch/http://hfqpdb.com/price_check/*"
+        "https://www.hfqpdb.com/price_check/*"
     ],
     "content_scripts": [{
         "matches": [
