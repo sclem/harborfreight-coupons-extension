@@ -63,47 +63,48 @@ function displayCoupons() {
         return;
     }
 
+    //try single product page
     if (priceboxdivs.length === 1) {
         handleSingleItemPage(priceboxdivs[0]);
-        return;
-    } else {
-        priceboxdivs.forEach(function(item) {
-            var itemno = 0;
-            var wishlist = false;
-            if (~window.location.pathname.indexOf('wishlist')) {
-                wishlist = true;
-                itemno = findWishlistItemNumber(item);
-            } else {
-                itemno = findListItemNumber(item);
-            }
-
-            if (itemno) {
-                lookupCoupon(itemno, function(resp) {
-                    if (resp.hasOwnProperty('bestPrice')) {
-                        var couponLinkText = '$' + resp.bestPrice;
-                        if (~(resp.bestPrice + '').toLowerCase().indexOf('free')) {
-                            couponLinkText = 'FREE';
-                        }
-                        var couponLink = buildCouponLinkElement(couponLinkText, resp.url);
-
-                        couponLink.style['padding'] = '2px';
-                        couponLink.style['margin-top'] = '5px';
-                        couponLink.style['margin-right'] = '2px';
-                        couponLink.style['font-size'] = '1.3em';
-                        if (!wishlist) {
-                            couponLink.style['float'] = 'right';
-                        }
-
-                        var insertNode = item.querySelector('.clear');
-                        if (!insertNode) {
-                            insertNode = item.querySelector('.comp');
-                        }
-                        item.insertBefore(couponLink, insertNode);
-                    }
-                });
-            }
-        });
     }
+
+    //continue anyway
+    priceboxdivs.forEach(function(item) {
+        var itemno = 0;
+        var wishlist = false;
+        if (~window.location.pathname.indexOf('wishlist')) {
+            wishlist = true;
+            itemno = findWishlistItemNumber(item);
+        } else {
+            itemno = findListItemNumber(item);
+        }
+
+        if (itemno) {
+            lookupCoupon(itemno, function(resp) {
+                if (resp.hasOwnProperty('bestPrice')) {
+                    var couponLinkText = '$' + resp.bestPrice;
+                    if (~(resp.bestPrice + '').toLowerCase().indexOf('free')) {
+                        couponLinkText = 'FREE';
+                    }
+                    var couponLink = buildCouponLinkElement(couponLinkText, resp.url);
+
+                    couponLink.style['padding'] = '2px';
+                    couponLink.style['margin-top'] = '5px';
+                    couponLink.style['margin-right'] = '2px';
+                    couponLink.style['font-size'] = '1.3em';
+                    if (!wishlist) {
+                        couponLink.style['float'] = 'right';
+                    }
+
+                    var insertNode = item.querySelector('.clear');
+                    if (!insertNode) {
+                        insertNode = item.querySelector('.comp');
+                    }
+                    item.insertBefore(couponLink, insertNode);
+                }
+            });
+        }
+    });
 }
 
 displayCoupons();
