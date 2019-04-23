@@ -13,15 +13,12 @@ String.prototype.matchAll = function(regexp) {
 };
 
 function lookupCoupon(itemno, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (this.readyState === 4) {
-            var data = JSON.parse(this.responseText);
-            callback(data);
-        }
-    };
-    xhr.open("GET", "https://www.hfqpdb.com/price_check/" + itemno);
-    xhr.send();
+    chrome.runtime.sendMessage({
+        action: "lookup_coupon",
+        itemno: itemno
+    }, function(data) {
+        callback(data);
+    });
 }
 
 function findSingleItemNo() {
