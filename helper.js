@@ -23,13 +23,12 @@ function lookupCoupon(itemno, callback) {
 
 function findSingleItemNo() {
     var itemno = 0;
+    var matches = [];
     try {
-        itemno = document.querySelector("meta[property='og:product_id']").getAttribute("content");
+        matches = document.body.innerHTML.match(/\"sku\"\:\"(\d+)\"/);;
+        itemno = matches.length ? matches[1] : document.getElementsByClassName("title-infor")[0].innerText.matchAll(itemRegex).pop();;
     } catch (ex) {
-        //Backup method
-        try {
-            itemno = document.getElementsByClassName("title-infor")[0].innerText.matchAll(itemRegex).pop();
-        } catch (ex) {}
+        // shrug
     }
     return itemno;
 }

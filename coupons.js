@@ -59,6 +59,10 @@ function handleSingleItemPage(priceboxdiv) {
 function displayCoupons() {
     var priceboxdivs = document.body.querySelectorAll('.price-box');
 
+    if (!priceboxdivs.length) {
+        priceboxdivs = document.body.querySelectorAll("div[class^='price__info']");
+    }
+
     if (!priceboxdivs) {
         return;
     }
