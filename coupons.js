@@ -1,9 +1,9 @@
 function handleSingleItemPage(priceboxdiv) {
-    var itemno = findSingleItemNo();
+    let itemno = findSingleItemNo();
 
-    var saleCSS = false;
+    let saleCSS = false;
     if (priceboxdiv) {
-        var salebox = priceboxdiv.querySelector('.sale');
+        let salebox = priceboxdiv.querySelector('.sale');
         if (salebox) {
             saleCSS = true;
             priceboxdiv = salebox;
@@ -12,13 +12,13 @@ function handleSingleItemPage(priceboxdiv) {
 
     if (itemno) {
         lookupCoupon(itemno, function(resp) {
-            var couponTitleText = document.createElement('span');
+            let couponTitleText = document.createElement('span');
             couponTitleText.style['display'] = 'inline-block';
             couponTitleText.style['vertical-align'] = 'top';
             couponTitleText.style['color'] = '#3a3a3a';
             couponTitleText.style['vertical-align'] = 'top';
-            var margin = '5px 5px 0 10px';
-            var fontSize = '1.3em';
+            let margin = '5px 5px 0 10px';
+            let fontSize = '1.3em';
             if (saleCSS) {
                 margin = '-3px 5px 0 5px';
                 fontSize = '0.6em';
@@ -30,17 +30,17 @@ function handleSingleItemPage(priceboxdiv) {
             if (saleCSS) {
                 priceboxdiv.appendChild(couponTitleText);
             } else {
-                priceboxdiv.insertBefore(couponTitleText, priceboxdiv.querySelector('.comp'));
+                priceboxdiv.appendChild(couponTitleText, priceboxdiv.querySelector('.comp'));
             }
 
             if (resp.hasOwnProperty('bestPrice')) {
-                var couponLinkText = '$' + resp.bestPrice;
+                let couponLinkText = '$' + resp.bestPrice;
                 if (~(resp.bestPrice + '').toLowerCase().indexOf('free')) {
                     couponLinkText = 'FREE';
                 }
                 couponTitleText.innerText = 'Best Coupon:';
 
-                var couponLink = buildCouponLinkElement(couponLinkText, resp.url);
+                let couponLink = buildCouponLinkElement(couponLinkText, resp.url);
                 couponLink.style['padding-left'] = '3px';
                 couponLink.style['padding-right'] = '3px';
                 couponLink.style['position'] = 'absolute';
@@ -49,7 +49,7 @@ function handleSingleItemPage(priceboxdiv) {
                     priceboxdiv.appendChild(couponLink);
                 } else {
                     couponLink.style['font-size'] = '2.5em';
-                    priceboxdiv.insertBefore(couponLink, priceboxdiv.querySelector('.comp'));
+                    priceboxdiv.appendChild(couponLink, priceboxdiv.querySelector('.comp'));
                 }
             }
         });
@@ -57,7 +57,11 @@ function handleSingleItemPage(priceboxdiv) {
 }
 
 function displayCoupons() {
-    var priceboxdivs = document.body.querySelectorAll('.price-box');
+    let priceboxdivs = document.body.querySelectorAll('.price-box');
+
+    if (!priceboxdivs.length) {
+        priceboxdivs = document.body.querySelectorAll("div[class^='price__info']");
+    }
 
     if (!priceboxdivs) {
         return;
@@ -70,8 +74,8 @@ function displayCoupons() {
 
     //continue anyway
     priceboxdivs.forEach(function(item) {
-        var itemno = 0;
-        var wishlist = false;
+        let itemno = 0;
+        let wishlist = false;
         if (~window.location.pathname.indexOf('wishlist')) {
             wishlist = true;
             itemno = findWishlistItemNumber(item);
@@ -82,11 +86,11 @@ function displayCoupons() {
         if (itemno) {
             lookupCoupon(itemno, function(resp) {
                 if (resp.hasOwnProperty('bestPrice')) {
-                    var couponLinkText = '$' + resp.bestPrice;
+                    let couponLinkText = '$' + resp.bestPrice;
                     if (~(resp.bestPrice + '').toLowerCase().indexOf('free')) {
                         couponLinkText = 'FREE';
                     }
-                    var couponLink = buildCouponLinkElement(couponLinkText, resp.url);
+                    let couponLink = buildCouponLinkElement(couponLinkText, resp.url);
 
                     couponLink.style['padding'] = '2px';
                     couponLink.style['margin-top'] = '5px';
@@ -96,7 +100,7 @@ function displayCoupons() {
                         couponLink.style['float'] = 'right';
                     }
 
-                    var insertNode = item.querySelector('.clear');
+                    let insertNode = item.querySelector('.clear');
                     if (!insertNode) {
                         insertNode = item.querySelector('.comp');
                     }
@@ -106,5 +110,11 @@ function displayCoupons() {
         }
     });
 }
+
+chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+    if (request.action === 'new_item') {
+        displayCoupons();
+    }
+});
 
 displayCoupons();

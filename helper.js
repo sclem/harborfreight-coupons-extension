@@ -1,10 +1,10 @@
-var itemRegex = /\d+/g;
+let itemRegex = /\d+/g;
 
 String.prototype.matchAll = function(regexp) {
-    var matches = [];
+    let matches = [];
     this.replace(regexp, function() {
-        var arr = ([]).slice.call(arguments, 0);
-        var extras = arr.splice(-2);
+        let arr = ([]).slice.call(arguments, 0);
+        let extras = arr.splice(-2);
         arr.index = extras[0];
         arr.input = extras[1];
         matches.push(arr);
@@ -22,20 +22,19 @@ function lookupCoupon(itemno, callback) {
 }
 
 function findSingleItemNo() {
-    var itemno = 0;
+    let itemno = 0;
+    let matches = [];
     try {
-        itemno = document.querySelector("meta[property='og:product_id']").getAttribute("content");
+        matches = document.body.innerHTML.match(/\"sku\"\:\"(\d+)\"/);;
+        itemno = matches.length ? matches[1] : document.getElementsByClassName("title-infor")[0].innerText.matchAll(itemRegex).pop();;
     } catch (ex) {
-        //Backup method
-        try {
-            itemno = document.getElementsByClassName("title-infor")[0].innerText.matchAll(itemRegex).pop();
-        } catch (ex) {}
+        // shrug
     }
     return itemno;
 }
 
 function findListItemNumber(priceboxdiv) {
-    var itemno = 0;
+    let itemno = 0;
     try {
         itemno = priceboxdiv.parentNode.querySelector('.product-ids').innerText.matchAll(itemRegex).pop();
     } catch (ex) {}
@@ -43,7 +42,7 @@ function findListItemNumber(priceboxdiv) {
 }
 
 function findWishlistItemNumber(priceboxdiv) {
-    var itemno = 0;
+    let itemno = 0;
     try {
         itemno = priceboxdiv.parentNode.parentNode.querySelector('.wishlist-sku').innerText.matchAll(itemRegex).pop();
     } catch (ex) {}
@@ -51,7 +50,7 @@ function findWishlistItemNumber(priceboxdiv) {
 }
 
 function buildCouponLinkElement(text, url) {
-    var a = document.createElement('a');
+    let a = document.createElement('a');
     a.href = url;
     a.innerText = text;
     a.style['display'] = 'inline-block';
