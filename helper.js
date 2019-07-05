@@ -1,16 +1,9 @@
-var itemRegex = /\d+/g;
+var htmlRegex = /(?<itemno>\d+)\.html$/;
 
-String.prototype.matchAll = function(regexp) {
-    var matches = [];
-    this.replace(regexp, function() {
-        var arr = ([]).slice.call(arguments, 0);
-        var extras = arr.splice(-2);
-        arr.index = extras[0];
-        arr.input = extras[1];
-        matches.push(arr);
-    });
-    return matches.length ? matches : null;
-};
+function extractLinkItemNo(node) {
+    var target = node.querySelector("a[href$='html']");
+    return target.href.match(htmlRegex).groups.itemno;
+}
 
 function lookupCoupon(itemno, callback) {
     chrome.runtime.sendMessage({
@@ -21,35 +14,6 @@ function lookupCoupon(itemno, callback) {
     });
 }
 
-function findSingleItemNo() {
-    var itemno = 0;
-    try {
-        itemno = document.querySelector("meta[property='og:product_id']").getAttribute("content");
-    } catch (ex) {
-        //Backup method
-        try {
-            itemno = document.getElementsByClassName("title-infor")[0].innerText.matchAll(itemRegex).pop();
-        } catch (ex) {}
-    }
-    return itemno;
-}
-
-function findListItemNumber(priceboxdiv) {
-    var itemno = 0;
-    try {
-        itemno = priceboxdiv.parentNode.querySelector('.product-ids').innerText.matchAll(itemRegex).pop();
-    } catch (ex) {}
-    return itemno;
-}
-
-function findWishlistItemNumber(priceboxdiv) {
-    var itemno = 0;
-    try {
-        itemno = priceboxdiv.parentNode.parentNode.querySelector('.wishlist-sku').innerText.matchAll(itemRegex).pop();
-    } catch (ex) {}
-    return itemno;
-}
-
 function buildCouponLinkElement(text, url) {
     var a = document.createElement('a');
     a.href = url;
@@ -58,5 +22,7 @@ function buildCouponLinkElement(text, url) {
     a.style['border'] = '2px dashed #308104';
     a.style['color'] = '#308104';
     a.title = 'Provided by hfqpdb.com';
+    a.style['padding'] = '3px';
+    a.style['align-self'] = 'flex-start';
     return a;
 }

@@ -1,3 +1,9 @@
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    if (changeInfo.title || changeInfo.favIconUrl || changeInfo.status === 'complete') {
+        chrome.tabs.sendMessage(tabId, 'update');
+    }
+});
+
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         switch (request.action) {
@@ -17,3 +23,4 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
+

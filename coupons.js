@@ -1,37 +1,43 @@
-function handleSingleItemPage(priceboxdiv) {
-    var itemno = findSingleItemNo();
-
-    var saleCSS = false;
-    if (priceboxdiv) {
-        var salebox = priceboxdiv.querySelector('.sale');
-        if (salebox) {
-            saleCSS = true;
-            priceboxdiv = salebox;
-        }
+function renderCoupon(itemno, priceboxdiv, renderType) {
+    if (!priceboxdiv) {
+        console.error('no price box div to render');
+        return;
     }
-
     if (itemno) {
         lookupCoupon(itemno, function(resp) {
+            var wrapper = document.createElement('div');
+            wrapper.style['display'] = 'flex';
+            wrapper.style['justify-content'] = 'space-between';
+            wrapper.style['margin-top'] = '5px';
+            switch (renderType) {
+                case 'wishlist':
+                    break;
+                case 'list':
+                    break;
+                default:
+                    wrapper.style['margin-top'] = '12px';
+                    wrapper.style['margin-left'] = '8px';
+                    break;
+            }
+
             var couponTitleText = document.createElement('span');
-            couponTitleText.style['display'] = 'inline-block';
-            couponTitleText.style['vertical-align'] = 'top';
-            couponTitleText.style['color'] = '#3a3a3a';
-            couponTitleText.style['vertical-align'] = 'top';
-            var margin = '5px 5px 0 10px';
-            var fontSize = '1.3em';
-            if (saleCSS) {
-                margin = '-3px 5px 0 5px';
-                fontSize = '0.6em';
-            }
-            couponTitleText.style['margin'] = margin;
-            couponTitleText.style['font-size'] = fontSize;
             couponTitleText.title = 'Provided by hfqpdb.com';
-            couponTitleText.innerText = resp.error || '';
-            if (saleCSS) {
-                priceboxdiv.appendChild(couponTitleText);
-            } else {
-                priceboxdiv.insertBefore(couponTitleText, priceboxdiv.querySelector('.comp'));
+            couponTitleText.style['display'] = 'inline-block';
+            couponTitleText.style['color'] = '#3a3a3a';
+
+            switch (renderType) {
+                case 'wishlist':
+                    break;
+                case 'list':
+                    couponTitleText.style['font-size'] = '0.5em';
+                    break;
+                default:
+                    couponTitleText.style['margin-right'] = '8px';
+                    break;
             }
+
+            couponTitleText.innerText = resp.error || '';
+            wrapper.appendChild(couponTitleText);
 
             if (resp.hasOwnProperty('bestPrice')) {
                 var couponLinkText = '$' + resp.bestPrice;
@@ -41,70 +47,93 @@ function handleSingleItemPage(priceboxdiv) {
                 couponTitleText.innerText = 'Best Coupon:';
 
                 var couponLink = buildCouponLinkElement(couponLinkText, resp.url);
-                couponLink.style['padding-left'] = '3px';
-                couponLink.style['padding-right'] = '3px';
-                couponLink.style['position'] = 'absolute';
-                couponLink.innerText = couponLinkText;
-                if (saleCSS) {
-                    priceboxdiv.appendChild(couponLink);
-                } else {
-                    couponLink.style['font-size'] = '2.5em';
-                    priceboxdiv.insertBefore(couponLink, priceboxdiv.querySelector('.comp'));
+                switch (renderType) {
+                    case 'wishlist':
+                        couponLink.style['font-size'] = '1.3em';
+                        break;
+                    case 'list':
+                        couponLink.style['font-size'] = '0.8em';
+                        break;
+                    default:
+                        couponLink.style['font-size'] = '2em';
+                        break;
                 }
+                couponLink.innerText = couponLinkText;
+                wrapper.appendChild(couponLink);
             }
+            priceboxdiv.appendChild(wrapper);
         });
     }
 }
 
-function displayCoupons() {
-    var priceboxdivs = document.body.querySelectorAll('.price-box');
-
-    if (!priceboxdivs) {
-        return;
+function getReviewItemNo() {
+    var reviewlink = document.body.querySelector('a[href^="/reviews/write?reviewsku"]');
+    if (reviewlink) {
+        return reviewlink.href.match('[0-9].+')[0];
     }
-
-    //try single product page
-    if (priceboxdivs.length === 1) {
-        handleSingleItemPage(priceboxdivs[0]);
-    }
-
-    //continue anyway
-    priceboxdivs.forEach(function(item) {
-        var itemno = 0;
-        var wishlist = false;
-        if (~window.location.pathname.indexOf('wishlist')) {
-            wishlist = true;
-            itemno = findWishlistItemNumber(item);
-        } else {
-            itemno = findListItemNumber(item);
-        }
-
-        if (itemno) {
-            lookupCoupon(itemno, function(resp) {
-                if (resp.hasOwnProperty('bestPrice')) {
-                    var couponLinkText = '$' + resp.bestPrice;
-                    if (~(resp.bestPrice + '').toLowerCase().indexOf('free')) {
-                        couponLinkText = 'FREE';
-                    }
-                    var couponLink = buildCouponLinkElement(couponLinkText, resp.url);
-
-                    couponLink.style['padding'] = '2px';
-                    couponLink.style['margin-top'] = '5px';
-                    couponLink.style['margin-right'] = '2px';
-                    couponLink.style['font-size'] = '1.3em';
-                    if (!wishlist) {
-                        couponLink.style['float'] = 'right';
-                    }
-
-                    var insertNode = item.querySelector('.clear');
-                    if (!insertNode) {
-                        insertNode = item.querySelector('.comp');
-                    }
-                    item.insertBefore(couponLink, insertNode);
-                }
-            });
-        }
-    });
+    return 0;
 }
 
-displayCoupons();
+function displayCoupons(action) {
+    switch (action) {
+        case 'update':
+            // attempt single page first
+            var itemno = getReviewItemNo();
+            if (itemno) {
+                var priceboxdiv = document.querySelector("div[class^='price__info']");
+                //render to price box child
+                renderCoupon(itemno, priceboxdiv.children[0]);
+                return;
+            }
+
+            // assume grid
+            var priceboxdivs = document.body.querySelectorAll("p[class^='grid__price']");
+            if (priceboxdivs.length) {
+                priceboxdivs.forEach(function(item) {
+                    try {
+                        var itemno = extractLinkItemNo(item.parentNode.parentNode.parentNode);
+                        renderCoupon(itemno, item, 'list');
+                    } catch (ex) {
+                        console.error('error detecting item number/rendering list coupon: ', ex);
+                    }
+                });
+                return;
+            }
+
+            // final attempt, check wishlist
+            var wishlist = document.body.querySelector("form[id='wishlist-view-form']");
+            if (wishlist) {
+                var items = wishlist.querySelectorAll("tr[id^='item']");
+                items.forEach(function (item) {
+                    try {
+                        var itemno = extractLinkItemNo(item);
+                        renderCoupon(itemno, item.children[2].children[0], 'wishlist');
+                    } catch (ex) {
+                        console.error('error detecting item number/rendering wishlist coupon: ', ex);
+                    }
+                });
+            }
+            break;
+        default:
+            console.log('unknown message received from background page: ', action);
+            break;
+    }
+};
+
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this,
+            args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+chrome.runtime.onMessage.addListener(debounce(displayCoupons, 500));
