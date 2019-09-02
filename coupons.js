@@ -6,6 +6,7 @@ function renderCoupon(itemno, priceboxdiv, renderType) {
     if (itemno) {
         lookupCoupon(itemno, function(resp) {
             var wrapper = document.createElement('div');
+            wrapper.setAttribute('hfextcoupons', 'hfextcoupons');
             wrapper.style['display'] = 'flex';
             wrapper.style['justify-content'] = 'space-between';
             wrapper.style['margin-top'] = '5px';
@@ -74,9 +75,19 @@ function getReviewItemNo() {
     return 0;
 }
 
+function clearCoupons() {
+    var count = 0;
+    document.querySelectorAll('div[hfextcoupons]').forEach(function (node) {
+        node.parentNode.removeChild(node);
+        count++;
+    });
+    console.log('cleared ' + count);
+}
+
 function displayCoupons(action) {
     switch (action) {
         case 'update':
+            clearCoupons();
             // attempt single page first
             var itemno = getReviewItemNo();
             if (itemno) {

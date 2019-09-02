@@ -1,8 +1,13 @@
-var htmlRegex = /(?<itemno>\d+)\.html$/;
 
 function extractLinkItemNo(node) {
+    var htmlRegex = new RegExp('(\\d+)\\.html$');
+
     var target = node.querySelector("a[href$='html']");
-    return target.href.match(htmlRegex).groups.itemno;
+    var matched = target.href.match(htmlRegex);
+    if (matched && matched.length > 1) {
+        return matched[1];
+    }
+    return null;
 }
 
 function lookupCoupon(itemno, callback) {
